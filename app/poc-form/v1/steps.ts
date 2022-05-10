@@ -1,4 +1,5 @@
 import type { Steps } from 'hmpo-form-wizard'
+import BaseController from '../../common/controllers/base-controller'
 
 const steps: Steps = {
   '/start': {
@@ -10,18 +11,22 @@ const steps: Steps = {
   },
   '/person-details': {
     pageTitle: 'Person details',
-    template: `forms/poc-form/start`,
+    template: `forms/poc-form/person-details`,
     next: 'support-needs',
+    controller: BaseController,
+    fields: ['first_name', 'family_name', 'gender'],
   },
   '/support-needs': {
     pageTitle: 'Support needs',
-    template: `forms/poc-form/start`,
+    template: `forms/poc-form/support-needs`,
     next: 'support-needs-details',
+    fields: ['support_needs'],
   },
   '/support-needs-details': {
     pageTitle: 'Support need details',
-    template: `forms/poc-form/start`,
+    template: `forms/poc-form/support-needs-details`,
     next: 'review-answers',
+    fields: ['support_needs_details'],
   },
   '/review-answers': {
     pageTitle: 'Review answers',
