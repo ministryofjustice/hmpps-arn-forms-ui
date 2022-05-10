@@ -53,9 +53,9 @@ export default {
         deadline: Number(get('HMPPS_AUTH_TIMEOUT_DEADLINE', 10000)),
       },
       agent: new AgentConfig(Number(get('HMPPS_AUTH_TIMEOUT_RESPONSE', 10000))),
-      apiClientId: get('API_CLIENT_ID', 'clientid', requiredInProduction),
+      apiClientId: get('API_CLIENT_ID', 'sentence-plan-client', requiredInProduction),
       apiClientSecret: get('API_CLIENT_SECRET', 'clientsecret', requiredInProduction),
-      systemClientId: get('SYSTEM_CLIENT_ID', 'clientid', requiredInProduction),
+      systemClientId: get('SYSTEM_CLIENT_ID', 'sentence-plan-api-client', requiredInProduction),
       systemClientSecret: get('SYSTEM_CLIENT_SECRET', 'clientsecret', requiredInProduction),
     },
     tokenVerification: {
