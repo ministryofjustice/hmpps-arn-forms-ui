@@ -2,7 +2,7 @@
 # Per environment values which override defaults in hmpps-arn-forms-ui/values.yaml
 
 generic-service:
-  replicaCount: 2
+  replicaCount: 0
 
   ingress:
     host: hmpps-arn-forms-ui-dev.hmpps.service.justice.gov.uk
