@@ -45,4 +45,9 @@ export default function nunjucksSetup(app: express.Express, path: pathModule.Pla
     const array = fullName.split(' ')
     return `${array[0][0]}. ${array.reverse()[0]}`
   })
+
+  njkEnv.addGlobal('getCsrf', function getCsrf() {
+    const v = this.getVariables()
+    return v?.['csrf-token'] || ''
+  })
 }
