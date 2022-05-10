@@ -1,17 +1,8 @@
-import FormWizard from 'hmpo-form-wizard'
 import Express from 'express'
-import steps from './steps'
-import fields from './fields'
+import pocFormRouter from './v1/index'
 
 const router = Express.Router()
 
-router.use(
-  FormWizard(steps, fields, {
-    journeyName: 'POC',
-    journeyPageTitle: 'POC Form',
-    name: 'POC',
-    entryPoint: true,
-  })
-)
+router.use('/v1', pocFormRouter)
 
 export default router
