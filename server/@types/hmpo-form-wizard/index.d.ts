@@ -1,4 +1,6 @@
 declare module 'hmpo-form-wizard' {
+  import { Request, Response, NextFunction } from 'express'
+
   export type FormWizardConfig = {
     journeyName: string
     journeyPageTitle: string
@@ -8,11 +10,19 @@ declare module 'hmpo-form-wizard' {
 
   // Fix a weird bug between TS and ESLint
   // eslint-disable-next-line no-shadow
-  export enum FieldType {
+  export const enum FieldType {
     Text = 'text',
     Radio = 'radio',
     CheckBox = 'checkbox',
+    TextArea = 'text-area',
   }
+
+  export type FieldOption = {
+    text: string
+    value: string
+  }
+
+  export type FieldOptions = FieldOption[]
 
   export type Field = {
     default?: string | number | []
@@ -20,6 +30,7 @@ declare module 'hmpo-form-wizard' {
     code: string
     hint?: string
     type: FieldType
+    options?: FieldOptions
   }
 
   export type Fields = {
@@ -32,6 +43,8 @@ declare module 'hmpo-form-wizard' {
     entryPoint?: boolean = false
     template: string
     next?: string
+    fields?: string[] = []
+    controller?: typeof FormWizard.Controller
   }
 
   export type Steps = {
@@ -39,6 +52,12 @@ declare module 'hmpo-form-wizard' {
   }
 
   function FormWizard(steps: Steps, fields: Fields, config: FormWizardConfig)
+
+  declare namespace FormWizard {
+    class Controller {
+      locals(req: Request, res: Response, next: NextFunction): Promise
+    }
+  }
 
   export default FormWizard
 }
