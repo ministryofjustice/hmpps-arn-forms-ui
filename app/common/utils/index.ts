@@ -18,7 +18,7 @@ export interface FormRouterConfig {
 
 export const setupForm = (steps: Steps, fields: Fields, options: FormOptions, router: Router): FormRouterConfig => {
   if (options.active === true) {
-    router.get('/fields', (req, res) => res.json(fields))
+    router.get('/fields', (req, res) => res.json({ version: options.version, form: options.journeyName, fields }))
     router.use(
       FormWizard(steps, fields, {
         journeyName: `${options.journeyName}:${options.version}`,
