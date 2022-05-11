@@ -1,27 +1,35 @@
 import { NextFunction, Request, Response } from 'express'
 import BaseController from './base-controller'
-import RestClient from '../../../server/data/restClient'
-import config from '../../../server/config'
-import generateOauthClientToken from '../../../server/authentication/clientCredentials'
 import { Offender } from '../../../server/@types/offender'
+import { savePersonData, getPersonData } from '../../../server/data/formsApi'
+import logger from '../../../logger'
 
 class OffenderDetailsController extends BaseController {
-  async saveValues(req: Request, res: Response, next: NextFunction) {
-    const clientToken = generateOauthClientToken(
-      config.apis.hmppsAuth.systemClientId,
-      config.apis.hmppsAuth.systemClientSecret
-    )
-    const restClient = new RestClient('POC Forms API', config.apis.hmppsAssessmentData, clientToken)
+  async getValues(req: Request, res: Response, next: NextFunction) {
+    try {
+      const response = await getPersonData('X123456')
 
+      res.locals = response
+    } catch (err) {
+      logger.info(err)
+      await super.getValues(req, res, next)
+      // throw new Error("Can't post offender update")
+    }
+    await super.saveValues(req, res, next)
+  }
+
+  async saveValues(req: Request, res: Response, next: NextFunction) {
     const offender: Offender = {
       firstName: req.body.first_name,
       lastName: req.body.family_name,
       gender: req.body.gender,
     }
     try {
-      await restClient.post({ path: '/update_offender', data: offender })
-    } catch {
-      throw new Error("Can't post offender update")
+      const response = await savePersonData(offender)
+    } catch (err) {
+      logger.info(err)
+      await super.saveValues(req, res, next)
+      // throw new Error("Can't post offender update")
     }
 
     await super.saveValues(req, res, next)

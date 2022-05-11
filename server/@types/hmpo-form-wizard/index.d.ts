@@ -57,6 +57,8 @@ declare module 'hmpo-form-wizard' {
     class Controller {
       locals(req: Request, res: Response, next: NextFunction): Promise
 
+      getValues(req: Request, res: Response, next: NextFunction): Promise
+
       saveValues(req: Request, res: Response, next: NextFunction): Promise
     }
   }
