@@ -18,7 +18,7 @@ export interface FormRouterConfig {
 
 export const setupForm = (steps: Steps, fields: Fields, options: FormOptions, router: Router): FormRouterConfig => {
   if (options.active === true) {
-    router.get('/fields', (req, res) => res.json(fields))
+    router.get('/fields', (req, res) => res.json({ version: options.version, form: options.journeyName, fields }))
     router.use(
       FormWizard(steps, fields, {
         journeyName: `${options.journeyName}:${options.version}`,
@@ -48,6 +48,10 @@ const getLatestVersionFrom = (formRouterConfig: FormRouterConfig[]): FormRouterC
     (latest, current) => (!latest || (current.active && current?.version > latest?.version) ? current : latest),
     null
   )
+const getActiveFormVersionsFrom = (formRouterConfig: FormRouterConfig[]): string[] =>
+  formRouterConfig
+    .filter((form: FormRouterConfig) => form.active)
+    .map((form: FormRouterConfig) => form.version.toString())
 
 export const bootstrapFormConfiguration = (formRouterConfig: FormRouterConfig[], router: Router) => {
   const latestForm: FormRouterConfig = getLatestVersionFrom(formRouterConfig)
@@ -58,11 +62,27 @@ export const bootstrapFormConfiguration = (formRouterConfig: FormRouterConfig[],
 
   formRouterConfig.filter((form: FormRouterConfig) => form.active).forEach(mountRouter(router))
 
+  router.use('/versions', (req: Request, res: Response) => res.json(formVersionResponse))
+
+  router.get('/', (req, res, next) => {
+    // eventually this would be replaced by what we receive when getting the version for an existing assessment
+    // for now we can just override defaulting to latest for testing
+    const selectedVersion = req.query.version?.toString()
+
+    if (!selectedVersion || selectedVersion === latestForm.version.toString()) {
+      return res.redirect(`${req.baseUrl}/start`)
+    }
+
+    if (selectedVersion && getActiveFormVersionsFrom(formRouterConfig).includes(selectedVersion)) {
+      return res.redirect(`${req.baseUrl}/v${selectedVersion}/start`)
+    }
+
+    return next(new Error('Invalid form version'))
+  })
+
   if (latestForm) {
     router.use('/', latestForm.router)
   }
-
-  router.use('/versions', (req: Request, res: Response) => res.json(formVersionResponse))
 }
 
 export default { setupForm, bootstrapFormConfiguration }
