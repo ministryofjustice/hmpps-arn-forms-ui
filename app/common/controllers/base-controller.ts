@@ -5,7 +5,7 @@ const { Controller } = FormWizard
 
 class BaseController extends Controller {
   async locals(req: Request, res: Response, next: NextFunction) {
-    super.locals(req, res, next)
+    await super.locals(req, res, next)
   }
 }
 
