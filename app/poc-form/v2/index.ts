@@ -10,7 +10,7 @@ const options = {
   journeyTitle: 'POC Form',
   entryPoint: true,
   version: 2,
-  active: false,
+  active: true,
 }
 
 const formRouter = setupForm(steps, fields, options, router)
