@@ -1,4 +1,6 @@
 declare module 'hmpo-form-wizard' {
+  import { Request, Response, NextFunction } from 'express'
+
   export type FormWizardConfig = {
     journeyName: string
     journeyPageTitle: string
@@ -42,7 +44,7 @@ declare module 'hmpo-form-wizard' {
     template: string
     next?: string
     fields?: string[] = []
-    controller?: any
+    controller?: typeof FormWizard.Controller
   }
 
   export type Steps = {
@@ -53,7 +55,7 @@ declare module 'hmpo-form-wizard' {
 
   declare namespace FormWizard {
     class Controller {
-      locals(req: any, res: any, next: any)
+      locals(req: Request, res: Response, next: NextFunction): Promise
     }
   }
 
