@@ -1,6 +1,9 @@
+/* eslint-disable import/no-dynamic-require, global-require, @typescript-eslint/no-var-requires */
 import FormWizard from 'hmpo-form-wizard'
 import type { Steps, Fields } from 'hmpo-form-wizard'
-import type { Router, Request, Response } from 'express'
+import { Router } from 'express'
+import type { Request, Response, NextFunction } from 'express'
+import fs from 'fs'
 
 export interface FormOptions {
   journeyName: string
@@ -10,13 +13,15 @@ export interface FormOptions {
   active?: boolean
 }
 
-export interface FormRouterConfig {
+export interface FormRouter {
   version: number
   active: boolean
   router: Router
 }
 
-export const setupForm = (steps: Steps, fields: Fields, options: FormOptions, router: Router): FormRouterConfig => {
+export const setupForm = (steps: Steps, fields: Fields, options: FormOptions): FormRouter => {
+  const router = Router()
+
   if (options.active === true) {
     router.get('/fields', (req, res) => res.json({ version: options.version, form: options.journeyName, fields }))
     router.use(
@@ -32,39 +37,51 @@ export const setupForm = (steps: Steps, fields: Fields, options: FormOptions, ro
   return { version: options.version, active: options.active || false, router }
 }
 
-interface FormVersionInformation {
+type FormVersionInformation = {
   version: number
   active: boolean
 }
 
-interface FormVersionResponse {
+type FormVersionResponse = {
   latest: number
   available: FormVersionInformation[]
 }
 
-const mountRouter = (r: Router) => (form: FormRouterConfig) => r.use(`/v${form.version}`, form.router)
-const getLatestVersionFrom = (formRouterConfig: FormRouterConfig[]): FormRouterConfig | null =>
+type BaseFormOptions = {
+  journeyName: string
+  journeyTitle: string
+  entryPoint?: boolean
+}
+
+type FormConfig = {
+  fields: Fields
+  steps: Steps
+  options: FormOptions
+}
+
+const mountRouter = (r: Router) => (form: FormRouter) => r.use(`/v${form.version}`, form.router)
+const getLatestVersionFrom = (formRouterConfig: FormRouter[]): FormRouter | null =>
   formRouterConfig.reduce(
     (latest, current) => (!latest || (current.active && current?.version > latest?.version) ? current : latest),
     null
   )
-const getActiveFormVersionsFrom = (formRouterConfig: FormRouterConfig[]): string[] =>
-  formRouterConfig
-    .filter((form: FormRouterConfig) => form.active)
-    .map((form: FormRouterConfig) => form.version.toString())
+const getActiveFormVersionsFrom = (formRouterConfig: FormRouter[]): string[] =>
+  formRouterConfig.filter((form: FormRouter) => form.active).map((form: FormRouter) => form.version.toString())
 
-export const bootstrapFormConfiguration = (formRouterConfig: FormRouterConfig[], router: Router) => {
-  const latestForm: FormRouterConfig = getLatestVersionFrom(formRouterConfig)
+export const bootstrapFormConfiguration = (forms: FormConfig[], options: BaseFormOptions): Router => {
+  const router = Router()
+  const formRouters = forms.map(form => setupForm(form.steps, form.fields, { ...form.options, ...options }))
+  const latestForm: FormRouter = getLatestVersionFrom(formRouters)
   const formVersionResponse: FormVersionResponse = {
     latest: latestForm?.version || null,
-    available: formRouterConfig.map(form => ({ version: form.version, active: form.active })),
+    available: formRouters.map(form => ({ version: form.version, active: form.active })),
   }
 
-  formRouterConfig.filter((form: FormRouterConfig) => form.active).forEach(mountRouter(router))
+  formRouters.filter((form: FormRouter) => form.active).forEach(mountRouter(router))
 
   router.use('/versions', (req: Request, res: Response) => res.json(formVersionResponse))
 
-  router.get('/', (req, res, next) => {
+  router.get('/', (req: Request, res: Response, next: NextFunction) => {
     // eventually this would be replaced by what we receive when getting the version for an existing assessment
     // for now we can just override defaulting to latest for testing
     const selectedVersion = req.query.version?.toString()
@@ -73,7 +90,7 @@ export const bootstrapFormConfiguration = (formRouterConfig: FormRouterConfig[],
       return res.redirect(`${req.baseUrl}/start`)
     }
 
-    if (selectedVersion && getActiveFormVersionsFrom(formRouterConfig).includes(selectedVersion)) {
+    if (selectedVersion && getActiveFormVersionsFrom(formRouters).includes(selectedVersion)) {
       return res.redirect(`${req.baseUrl}/v${selectedVersion}/start`)
     }
 
@@ -83,6 +100,16 @@ export const bootstrapFormConfiguration = (formRouterConfig: FormRouterConfig[],
   if (latestForm) {
     router.use('/', latestForm.router)
   }
+
+  return router
 }
+
+export const loadFormsInDirectory = (baseDir: string) =>
+  fs
+    .readdirSync(baseDir, { withFileTypes: true })
+    .filter(d => d.isDirectory())
+    .map(d => {
+      return require(`${baseDir}/${d.name}`).default
+    })
 
 export default { setupForm, bootstrapFormConfiguration }

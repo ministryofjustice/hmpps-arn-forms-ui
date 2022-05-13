@@ -1,11 +1,13 @@
-import { Router } from 'express'
-import { bootstrapFormConfiguration } from '../common/utils'
+import { bootstrapFormConfiguration, loadFormsInDirectory } from '../common/utils'
 
-import formVersion1 from './v1/index'
-import formVersion2 from './v2/index'
+const options = {
+  journeyName: 'POC',
+  journeyTitle: 'POC Form',
+  entryPoint: true,
+}
 
-const router = Router()
+const forms = loadFormsInDirectory(__dirname)
 
-bootstrapFormConfiguration([formVersion1, formVersion2], router)
+const router = bootstrapFormConfiguration(forms, options)
 
 export default router
