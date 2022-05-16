@@ -2,7 +2,7 @@ import { bootstrapFormConfiguration, loadFormsInDirectory } from '../common/util
 
 const options = {
   journeyName: 'POC',
-  journeyTitle: 'POC Form',
+  journeyTitle: 'Proof of Concept Form',
   entryPoint: true,
 }
 

@@ -25,7 +25,9 @@ export const setupForm = (steps: Steps, fields: Fields, options: FormOptions): F
   const router = Router()
 
   if (options.active === true) {
-    router.get('/fields', (req, res) => res.json({ version: options.version, form: options.journeyName, fields }))
+    router.get('/fields', (req, res) =>
+      res.json({ name: options.journeyName, title: options.journeyTitle, version: options.version, fields })
+    )
     router.use(
       FormWizard(steps, fields, {
         journeyName: `${options.journeyName}:${options.version}`,
@@ -67,7 +69,10 @@ type FormConfig = {
   options: FormConfigOptions
 }
 
-const mountRouter = (r: Router) => (form: FormRouter) => r.use(`/v${form.version}`, form.router)
+const mountRouter = (r: Router) => (form: FormRouter) => {
+  const [majorVersion, minorVersion] = form.version.split('.')
+  r.use(`/${majorVersion}/${minorVersion}`, form.router)
+}
 const getLatestVersionFrom = (formRouterConfig: FormRouter[]): FormRouter | null =>
   formRouterConfig.reduce(
     (latest, current) => (!latest || (current.active && current?.version > latest?.version) ? current : latest),
@@ -105,7 +110,8 @@ export const bootstrapFormConfiguration = (forms: FormConfig[], options: BaseFor
     }
 
     if (selectedVersion && getActiveFormVersionsFrom(formRouters).includes(selectedVersion)) {
-      return res.redirect(`${req.baseUrl}/v${selectedVersion}/start`)
+      const [majorVersion, minorVersion] = selectedVersion.split('.')
+      return res.redirect(`${req.baseUrl}/${majorVersion}/${minorVersion}/start`)
     }
 
     return next(new Error('Invalid form version'))
