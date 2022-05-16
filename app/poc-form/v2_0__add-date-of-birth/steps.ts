@@ -1,5 +1,5 @@
 import type { Steps } from 'hmpo-form-wizard'
-import v1Steps from '../v1/steps'
+import v1Steps from '../v1_0__initial-form/steps'
 import BaseController from '../../common/controllers/base-controller'
 
 const steps: Steps = {
