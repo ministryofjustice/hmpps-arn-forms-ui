@@ -3,20 +3,22 @@ import FormWizard from 'hmpo-form-wizard'
 import type { Steps, Fields } from 'hmpo-form-wizard'
 import { Router } from 'express'
 import type { Request, Response, NextFunction } from 'express'
-import fs from 'fs'
+import fs, { Dirent } from 'fs'
 
 export interface FormOptions {
   journeyName: string
   journeyTitle: string
-  version: number
+  version: string
   entryPoint?: boolean
   active?: boolean
+  tag: string
 }
 
 export interface FormRouter {
-  version: number
+  version: string
   active: boolean
   router: Router
+  tag: string
 }
 
 export const setupForm = (steps: Steps, fields: Fields, options: FormOptions): FormRouter => {
@@ -34,16 +36,16 @@ export const setupForm = (steps: Steps, fields: Fields, options: FormOptions): F
     )
   }
 
-  return { version: options.version, active: options.active || false, router }
+  return { version: options.version, tag: options.tag, active: options.active || false, router }
 }
 
 type FormVersionInformation = {
-  version: number
+  version: string
   active: boolean
 }
 
 type FormVersionResponse = {
-  latest: number
+  latest: string
   available: FormVersionInformation[]
 }
 
@@ -53,10 +55,16 @@ type BaseFormOptions = {
   entryPoint?: boolean
 }
 
+type FormConfigOptions = {
+  version: string
+  tag: string
+  active: boolean
+}
+
 type FormConfig = {
   fields: Fields
   steps: Steps
-  options: FormOptions
+  options: FormConfigOptions
 }
 
 const mountRouter = (r: Router) => (form: FormRouter) => r.use(`/v${form.version}`, form.router)
@@ -70,11 +78,17 @@ const getActiveFormVersionsFrom = (formRouterConfig: FormRouter[]): string[] =>
 
 export const bootstrapFormConfiguration = (forms: FormConfig[], options: BaseFormOptions): Router => {
   const router = Router()
-  const formRouters = forms.map(form => setupForm(form.steps, form.fields, { ...form.options, ...options }))
+  const formRouters: FormRouter[] = forms.map(form =>
+    setupForm(form.steps, form.fields, { ...form.options, ...options })
+  )
   const latestForm: FormRouter = getLatestVersionFrom(formRouters)
   const formVersionResponse: FormVersionResponse = {
     latest: latestForm?.version || null,
-    available: formRouters.map(form => ({ version: form.version, active: form.active })),
+    available: formRouters.map(form => ({
+      version: form.version,
+      active: form.active,
+      tag: form.tag,
+    })),
   }
 
   formRouters.filter((form: FormRouter) => form.active).forEach(mountRouter(router))
@@ -104,12 +118,25 @@ export const bootstrapFormConfiguration = (forms: FormConfig[], options: BaseFor
   return router
 }
 
-export const loadFormsInDirectory = (baseDir: string) =>
+const dirRegex = /v(\d*)_(\d*)__([a-zA-Z0-9_-]*)/
+
+export const loadFormsInDirectory = (baseDir: string): FormConfig[] =>
   fs
     .readdirSync(baseDir, { withFileTypes: true })
-    .filter(d => d.isDirectory())
-    .map(d => {
-      return require(`${baseDir}/${d.name}`).default
+    .filter((fsEntry: Dirent): boolean => fsEntry.isDirectory() && dirRegex.test(fsEntry.name))
+    .map((directory: Dirent): FormConfig => {
+      const versionDetails: string[] = dirRegex.exec(directory.name).slice(1)
+      const [major, minor, tag] = versionDetails
+      const formConfiguration = require(`${baseDir}/${directory.name}`).default
+      return {
+        steps: formConfiguration.steps,
+        fields: formConfiguration.fields,
+        options: {
+          ...formConfiguration.options,
+          version: `${major}.${minor}`,
+          tag: tag.replace(/[_-]/gm, ' '),
+        },
+      }
     })
 
 export default { setupForm, bootstrapFormConfiguration }
