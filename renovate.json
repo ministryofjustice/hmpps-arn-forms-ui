@@ -3,6 +3,8 @@
   "extends": ["config:base", "docker:disable"],
   "timezone": "Europe/London",
   "schedule": ["after 9am every weekday", "before 5pm every weekday"],
+  "rangeStrategy": "replace",
+  "prCreation": "status-success",
   "packageRules": [
     {
       "matchPackagePatterns": ["*"],
