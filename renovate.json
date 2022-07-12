@@ -1,17 +1,3 @@
 {
-  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:base", "docker:disable"],
-  "timezone": "Europe/London",
-  "schedule": ["after 9am every weekday", "before 5pm every weekday"],
-  "rangeStrategy": "replace",
-  "prCreation": "status-success",
-  "packageRules": [
-    {
-      "matchPackagePatterns": ["*"],
-      "matchUpdateTypes": ["minor", "patch"],
-      "groupName": "all non-major dependencies",
-      "groupSlug": "all-minor-patch"
-    }
-  ],
-  "lockFileMaintenance": { "enabled": true }
+  "extends": ["github>ministryofjustice/arn-renovate-config"]
 }
