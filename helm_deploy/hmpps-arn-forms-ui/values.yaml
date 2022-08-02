@@ -24,6 +24,8 @@ generic-service:
 
   custommetrics:
     enabled: true
+    v1_2_enabled: true
+    v0_47_enabled: true
     scrapeInterval: 15s
     metricsPath: /metrics
     metricsPort: 3001
