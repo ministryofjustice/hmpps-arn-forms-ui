@@ -11,6 +11,7 @@ generic-service:
 
   ingress:
     enabled: true
+    v1_2_enabled: true
     host: app-hostname.local    # override per environment
     tlsSecretName: hmpps-arn-forms-ui-cert
 
@@ -24,8 +25,6 @@ generic-service:
 
   custommetrics:
     enabled: true
-    v1_2_enabled: true
-    v0_47_enabled: true
     scrapeInterval: 15s
     metricsPath: /metrics
     metricsPort: 3001
