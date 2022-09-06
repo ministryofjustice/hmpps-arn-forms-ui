@@ -162,7 +162,7 @@
     "prettier": "^2.6.2",
     "sass": "^1.52.2",
     "supertest": "^6.2.3",
-    "ts-jest": "^28.0.0",
+    "ts-jest": "29.0.0-next.1",
     "typescript": "^4.7.4"
   }
 }
