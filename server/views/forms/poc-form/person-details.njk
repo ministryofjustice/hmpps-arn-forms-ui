@@ -2,6 +2,7 @@
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 {% from "../../components/question/macro.njk" import renderQuestion %}
+{%- from "govuk/components/tag/macro.njk" import govukTag -%}
 
 {% set hideBackLink = true %}
 
@@ -18,12 +19,19 @@
             <form method="post" action="{{ action }}">
                 <input type="hidden" name="x-csrf-token" value="{{ getCsrf() }}">
 
-                {{ renderQuestion(options.fields['first_name']) }}
-                {{ renderQuestion(options.fields['family_name']) }}
-                {{ renderQuestion(options.fields['gender']) }}
+                {% if changes %}
+                    <p class="govuk-body">
+                        <span class="govuk-!-padding-right-2">{{ govukTag({ text: "note" }) }}</span>
+                        {{ changes }} - <a href="view-changes" class="govuk-link">view changes</a>
+                    </p>
+                {% endif %}
+
+                {{ renderQuestion(options.fields['given_name'], answers) }}
+                {{ renderQuestion(options.fields['family_name'], answers) }}
+                {{ renderQuestion(options.fields['date_of_birth'], answers) }}
 
                 {{ govukButton({
-                    text: 'Save',
+                    text: 'Update',
                     classes: 'govuk-!-margin-bottom-3 govuk-!-margin-right-1'
                 }) }}
             </form>

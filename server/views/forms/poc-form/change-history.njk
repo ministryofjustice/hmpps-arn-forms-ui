@@ -1,0 +1,44 @@
+{% extends "../../partials/layout.njk" %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% from "govuk/components/table/macro.njk" import govukTable %}
+
+{% set hideBackLink = true %}
+
+{% block header %}
+    {% include "../../partials/header.njk" %}
+{% endblock %}
+
+{% block content %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full-width">
+            <div>
+                <h1 class="govuk-heading-l">{{ options.pageTitle }}</h1>
+
+                <ul class="govuk-list">
+                    {% for change in changes %}
+                        <li>
+                            <a class="govuk-link" href="changes">{{ change.event }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+
+                {{ govukTable({
+                    firstCellIsHeader: true,
+                    head: [
+                        {
+                            text: "Change type"
+                        }, {
+                            text: "Changed by"
+                        }, {
+                            text: "Changed on"
+                        }, {
+                            text: "Details"
+                        }
+                    ],
+                    rows: changes
+                }) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}

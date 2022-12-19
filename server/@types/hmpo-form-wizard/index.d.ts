@@ -15,6 +15,7 @@ declare module 'hmpo-form-wizard' {
     Radio = 'radio',
     CheckBox = 'checkbox',
     TextArea = 'text-area',
+    Date = 'date',
   }
 
   export type FieldOption = {
