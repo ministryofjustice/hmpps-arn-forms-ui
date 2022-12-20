@@ -1,52 +1,48 @@
 import { NextFunction, Request, Response } from 'express'
 import FormWizard from 'hmpo-form-wizard'
+import superagent from 'superagent'
+import config from '../../../server/config'
 
 const { Controller } = FormWizard
 
-const changeType = {
-  CREATED_PERSON: 'Person created',
-  PERSON_DETAILS_UPDATED: 'Person details updated',
-  APPROVED_CHANGES: 'Changes approved',
+enum PersonEventType {
+  CreatedPerson = 'CREATED_PERSON',
+  PersonDetailsUpdated = 'PERSON_DETAILS_UPDATED',
+  ApprovedChanges = 'APPROVED_CHANGES',
 }
 
-const getChangeTypeFor = (eventType: string) => changeType[eventType] || 'Unknown'
-const getLinkForChange = () => '<a class="govuk-link" href="changes">View</a>'
+const shouldDisplayLinkFor = (eventType: PersonEventType) => [PersonEventType.PersonDetailsUpdated].includes(eventType)
+
+interface Event {
+  uuid: string,
+  createdOn: string,
+  createdBy: string,
+  eventType: PersonEventType,
+}
+
+const getDisplayTextFor = (eventType: string) => {
+  const displayText = {
+    [PersonEventType.CreatedPerson]: 'Person created',
+    [PersonEventType.PersonDetailsUpdated]: 'Person details updated',
+    [PersonEventType.ApprovedChanges]: 'Changes approved',
+  }
+
+  return displayText[eventType] || 'Unknown'
+}
+
+const getLinkWith = (aggregateId: string, changeId: string) => `<a class="govuk-link" href="/form/event-sourcing/view-changes/${aggregateId}/diff/${changeId}">View</a>`
 
 class PersonDetailsController extends Controller {
   async locals(req: Request, res: Response, next: NextFunction) {
-    const apiResponse = [
-      {
-        uuid: '1e8f4967-d2c4-4137-bb4b-ffa51f51440c',
-        createdOn: '2022-12-02T12:15:16.879097',
-        createdBy: 'Unknown',
-        aggregateId: '2b597edf-c1ad-4d85-a833-a9b260a2f814',
-        eventType: 'CREATED_PERSON',
-      },
-      {
-        uuid: 'c7a344b4-575b-4b8f-8fd3-d6df1519d3f0',
-        createdOn: '2022-12-02T12:15:16.928812',
-        createdBy: 'Unknown',
-        aggregateId: '2b597edf-c1ad-4d85-a833-a9b260a2f814',
-        eventType: 'PERSON_DETAILS_UPDATED',
-      },
-      {
-        uuid: '10983443-26b3-4aef-aa22-fca503af47a8',
-        createdOn: '2022-12-05T13:28:07.176169',
-        createdBy: 'Unknown',
-        aggregateId: '2b597edf-c1ad-4d85-a833-a9b260a2f814',
-        eventType: 'PERSON_DETAILS_UPDATED',
-      },
-      {
-        uuid: '627f462e-8811-4552-b3c4-198407bcdb65',
-        createdOn: '2022-12-05T13:28:07.195211',
-        createdBy: 'Unknown',
-        aggregateId: '2b597edf-c1ad-4d85-a833-a9b260a2f814',
-        eventType: 'APPROVED_CHANGES',
-      },
-    ]
+    const apiResponse = await superagent.get(`${config.apis.assessmentsData.url}/person/${req.params.aggregateId}/events`)
 
-    res.locals.changes = apiResponse.map(({ uuid, createdOn, createdBy, eventType }) =>
-      [getChangeTypeFor(eventType), createdBy, createdOn, getLinkForChange()].map(columnContent => ({
+    res.locals.changes = apiResponse.body.map(({ uuid: changeId, createdOn, createdBy, eventType }: Event) =>
+      [
+        getDisplayTextFor(eventType),
+        createdBy,
+        Intl.DateTimeFormat('en-GB', { dateStyle: 'long', timeStyle: 'short' }).format(Date.parse(createdOn)),
+        shouldDisplayLinkFor(eventType) ? getLinkWith(req.params.aggregateId, changeId) : null
+      ].map(columnContent => ({
         html: columnContent,
       }))
     )

@@ -1,5 +1,7 @@
 import { NextFunction, Request, Response } from 'express'
 import FormWizard from 'hmpo-form-wizard'
+import superagent from 'superagent'
+import config from '../../../server/config'
 
 const { Controller } = FormWizard
 
@@ -10,29 +12,20 @@ const questionText = {
 }
 
 const getQuestionTextFor = (field: string) => questionText[field] || 'Unknown'
+const mapNullValue = (value: string) => value === 'null' ? '-' : value
+
+interface Change {
+  field: string,
+  from: string,
+  to: string,
+}
 
 class PersonDetailsController extends Controller {
   async locals(req: Request, res: Response, next: NextFunction) {
-    const apiResponse = [
-      {
-        field: 'givenName',
-        from: 'Test',
-        to: 'Test update',
-      },
-      {
-        field: 'familyName',
-        from: 'Test',
-        to: 'Test update',
-      },
-      {
-        field: 'dateOfBirth',
-        from: '1989-01-19',
-        to: '1992-01-19',
-      },
-    ]
+    const apiResponse = await superagent.get(`${config.apis.assessmentsData.url}/person/${req.params.aggregateId}/events/${req.params.changeId}`)
 
-    res.locals.changes = apiResponse.map(({ field, from, to }) =>
-      [getQuestionTextFor(field), from, to].map(columnContent => ({ text: columnContent }))
+    res.locals.changes = apiResponse.body.map(({ field, from, to }: Change) =>
+      [getQuestionTextFor(field), mapNullValue(from), to].map(columnContent => ({ text: columnContent }))
     )
 
     super.locals(req, res, next)

@@ -22,7 +22,7 @@
                 {% if changes %}
                     <p class="govuk-body">
                         <span class="govuk-!-padding-right-2">{{ govukTag({ text: "note" }) }}</span>
-                        {{ changes }} - <a href="view-changes" class="govuk-link">view changes</a>
+                        {{ changes }} - <a href="{{ viewChangesLink }}" class="govuk-link">view changes</a>
                     </p>
                 {% endif %}
 

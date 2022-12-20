@@ -1,5 +1,5 @@
 import type { Steps } from 'hmpo-form-wizard'
-import BaseController from '../../common/controllers/base-controller'
+import AddPersonController from '../../common/controllers/add-person-controller'
 import TaskListController from '../../common/controllers/task-list-controller'
 import PersonDetailsController from '../../common/controllers/person-details-controller'
 import ChangeHistoryController from '../../common/controllers/change-history-controller'
@@ -15,34 +15,29 @@ const steps: Steps = {
   },
   '/add-person': {
     pageTitle: 'Add a new person',
-    template: `forms/poc-form/person-details`,
-    next: 'task-list',
-    controller: BaseController,
+    template: `forms/poc-form/person-details`,    
+    controller: AddPersonController,
     fields: ['given_name', 'family_name', 'date_of_birth'],
   },
-  '/task-list': {
+  '/task-list/:aggregateId': {
     pageTitle: 'Assessment',
-    template: `forms/poc-form/task-list`,
-    next: 'support-needs',
+    template: `forms/poc-form/task-list`,    
     controller: TaskListController,
   },
-  '/person-details': {
+  '/person-details/:aggregateId': {
     pageTitle: 'Person details',
-    template: `forms/poc-form/person-details`,
-    next: 'task-list',
+    template: `forms/poc-form/person-details`,    
     controller: PersonDetailsController,
     fields: ['given_name', 'family_name', 'date_of_birth'],
   },
-  '/view-changes': {
+  '/view-changes/:aggregateId': {
     pageTitle: 'Change history',
-    template: `forms/poc-form/change-history`,
-    next: 'task-list',
+    template: `forms/poc-form/change-history`, 
     controller: ChangeHistoryController,
   },
-  '/changes': {
+  '/view-changes/:aggregateId/diff/:changeId': {
     pageTitle: 'Changes',
-    template: `forms/poc-form/changes`,
-    next: 'task-list',
+    template: `forms/poc-form/changes`,    
     controller: ChangeController,
   },
 }
