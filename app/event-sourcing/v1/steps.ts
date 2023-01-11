@@ -15,29 +15,29 @@ const steps: Steps = {
   },
   '/add-person': {
     pageTitle: 'Add a new person',
-    template: `forms/poc-form/person-details`,    
+    template: `forms/poc-form/person-details`,
     controller: AddPersonController,
     fields: ['given_name', 'family_name', 'date_of_birth'],
   },
   '/task-list/:aggregateId': {
     pageTitle: 'Assessment',
-    template: `forms/poc-form/task-list`,    
+    template: `forms/poc-form/task-list`,
     controller: TaskListController,
   },
   '/person-details/:aggregateId': {
     pageTitle: 'Person details',
-    template: `forms/poc-form/person-details`,    
+    template: `forms/poc-form/person-details`,
     controller: PersonDetailsController,
     fields: ['given_name', 'family_name', 'date_of_birth'],
   },
   '/view-changes/:aggregateId': {
     pageTitle: 'Change history',
-    template: `forms/poc-form/change-history`, 
+    template: `forms/poc-form/change-history`,
     controller: ChangeHistoryController,
   },
   '/view-changes/:aggregateId/diff/:changeId': {
     pageTitle: 'Changes',
-    template: `forms/poc-form/changes`,    
+    template: `forms/poc-form/changes`,
     controller: ChangeController,
   },
 }

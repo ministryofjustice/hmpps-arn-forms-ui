@@ -57,7 +57,9 @@ declare module 'hmpo-form-wizard' {
   declare namespace FormWizard {
     class Controller {
       locals(req: Request, res: Response, next: NextFunction): Promise
+
       saveValues(req: Request, res: Response, next: NextFunction): Promise
+
       configure(req: Request, res: Response, next: NextFunction): Promise
     }
   }

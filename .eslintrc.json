@@ -106,6 +106,8 @@
         "semi": false,
         "arrowParens": "avoid"
       }
-    ]
+    ],
+    "no-shadow": "off",
+    "@typescript-eslint/no-shadow": ["error"]
   }
 }
