@@ -1,9 +1,9 @@
 import type { Steps } from 'hmpo-form-wizard'
-import AddPersonController from '../../common/controllers/add-person-controller'
-import TaskListController from '../../common/controllers/task-list-controller'
-import PersonDetailsController from '../../common/controllers/person-details-controller'
-import ChangeHistoryController from '../../common/controllers/change-history-controller'
-import ChangeController from '../../common/controllers/change-controller'
+import AddPersonController from '../controllers/add-person-controller'
+import TaskListController from '../controllers/task-list-controller'
+import PersonDetailsController from '../controllers/person-details-controller'
+import ChangeHistoryController from '../controllers/change-history-controller'
+import ChangeController from '../controllers/change-controller'
 
 const steps: Steps = {
   '/start': {
