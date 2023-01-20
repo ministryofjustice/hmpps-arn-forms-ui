@@ -15,6 +15,7 @@ declare module 'hmpo-form-wizard' {
     Radio = 'radio',
     CheckBox = 'checkbox',
     TextArea = 'text-area',
+    Date = 'date',
   }
 
   export type FieldOption = {
@@ -38,10 +39,10 @@ declare module 'hmpo-form-wizard' {
   }
 
   export type Step = {
-    pageTitle: string
+    pageTitle?: string
     reset?: boolean = false
     entryPoint?: boolean = false
-    template: string
+    template?: string
     next?: string
     fields?: string[] = []
     controller?: typeof FormWizard.Controller
@@ -56,7 +57,21 @@ declare module 'hmpo-form-wizard' {
   declare namespace FormWizard {
     class Controller {
       locals(req: Request, res: Response, next: NextFunction): Promise
+
+      saveValues(req: Request, res: Response, next: NextFunction): Promise
+
+      configure(req: Request, res: Response, next: NextFunction): Promise
     }
+  }
+
+  export type FormValuesMap = { [key: string]: string }
+
+  export interface Form {
+    values: FormValuesMap
+  }
+
+  export interface FormsRequest extends Request {
+    form: Form
   }
 
   export default FormWizard

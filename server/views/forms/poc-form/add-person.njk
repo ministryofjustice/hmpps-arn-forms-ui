@@ -19,13 +19,6 @@
             <form method="post" action="{{ action }}">
                 <input type="hidden" name="x-csrf-token" value="{{ getCsrf() }}">
 
-                {% if changes %}
-                    <p class="govuk-body">
-                        <span class="govuk-!-padding-right-2">{{ govukTag({ text: "note" }) }}</span>
-                        {{ changes }} - <a href="{{ viewChangesLink }}" class="govuk-link">view changes</a>
-                    </p>
-                {% endif %}
-
                 {{ renderQuestion(options.fields['given_name'], answers) }}
                 {{ renderQuestion(options.fields['family_name'], answers) }}
                 {{ renderQuestion(options.fields['date_of_birth'], answers) }}
@@ -34,10 +27,6 @@
                     text: submissionText | default('Update'),
                     classes: 'govuk-!-margin-bottom-3 govuk-!-margin-right-1'
                 }) }}
-                <div class="govuk-body">
-                    <a href="{{ proposeChangesLink }}" class="govuk-link govuk-!-padding-right-5">Propose new change</a>
-                    <a href="{{ viewProposedChangesLink }}" class="govuk-link">View proposed changes</a>
-                </div>
             </form>
         </div>
     </div>
