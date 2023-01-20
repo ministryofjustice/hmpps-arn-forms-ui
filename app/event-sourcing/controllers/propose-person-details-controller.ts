@@ -16,13 +16,11 @@ type AddOffenderResponse = {
   metaData: MetaData
 }
 
-class PersonDetailsController extends Controller {
+class ProposePersonDetailsController extends Controller {
   async locals(req: Request, res: Response, next: NextFunction) {
     const response = await AssessmentApiClient.withToken(req.user.token).get<AddOffenderResponse>({
       path: `/person/${req.params.aggregateId}`,
     })
-
-    res.locals.changes = `There have been ${response.metaData.numberOfChanges} changes for this person by ${response.metaData.numberOfContributors} contributor(s)`
 
     res.locals.answers = {
       given_name: response.givenName || '',
@@ -30,9 +28,7 @@ class PersonDetailsController extends Controller {
       date_of_birth: response.dateOfBirth || '',
     }
 
-    res.locals.viewChangesLink = `/form/event-sourcing/view-changes/${req.params.aggregateId}`
-    res.locals.proposeChangesLink = `/form/event-sourcing/propose-person-details/${req.params.aggregateId}`
-    res.locals.viewProposedChangesLink = `/form/event-sourcing/view-proposed-changes/${req.params.aggregateId}`
+    res.locals.submissionText = 'Propose changes'
 
     super.locals(req, res, next)
   }
@@ -48,7 +44,7 @@ class PersonDetailsController extends Controller {
       path: '/command',
       data: [
         {
-          type: 'UPDATE_PERSON_DETAILS',
+          type: 'PROPOSE_UPDATE_PERSON_DETAILS',
           values: {
             aggregateId: req.params.aggregateId,
             givenName: req.form.values.given_name,
@@ -63,4 +59,4 @@ class PersonDetailsController extends Controller {
   }
 }
 
-export default PersonDetailsController
+export default ProposePersonDetailsController

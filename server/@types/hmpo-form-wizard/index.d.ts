@@ -39,10 +39,10 @@ declare module 'hmpo-form-wizard' {
   }
 
   export type Step = {
-    pageTitle: string
+    pageTitle?: string
     reset?: boolean = false
     entryPoint?: boolean = false
-    template: string
+    template?: string
     next?: string
     fields?: string[] = []
     controller?: typeof FormWizard.Controller

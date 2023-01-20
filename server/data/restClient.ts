@@ -70,6 +70,31 @@ export default class RestClient {
     }
   }
 
+  async delete({ path = null, query = '', headers = {}, responseType = '' }: GetRequest): Promise<superagent.Response> {
+    logger.info(`Delete using user credentials: calling ${this.name}: ${path} ${query}`)
+    try {
+      const result = await superagent
+        .delete(`${this.apiUrl()}${path}`)
+        .agent(this.agent)
+        .use(restClientMetricsMiddleware)
+        .retry(2, (err, res) => {
+          if (err) logger.info(`Retry handler found API error with ${err.code} ${err.message}`)
+          return undefined // retry handler only for logging retries, not to influence retry logic
+        })
+        .query(query)
+        .auth(this.token, { type: 'bearer' })
+        .set(headers)
+        .responseType(responseType)
+        .timeout(this.timeoutConfig())
+
+      return result
+    } catch (error) {
+      const sanitisedError = sanitiseError(error)
+      logger.warn({ ...sanitisedError, query }, `Error calling ${this.name}, path: '${path}', verb: 'GET'`)
+      throw sanitisedError
+    }
+  }
+
   async post<T>({
     path = null,
     headers = {},
