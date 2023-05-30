@@ -1,5 +1,5 @@
 import { Fields, FieldType } from 'hmpo-form-wizard'
-import v1Fields from '../v1/fields'
+import v1Fields from '../v1_0__initial-form/fields'
 
 const fields: Fields = {
   ...v1Fields,
